@@ -16,15 +16,15 @@ Cyberpunk 是一款面向 OpenWrt 路由器管理后台的深色 LuCI 主题，�
 
 ### 桌面端
 
-![赛博朋克主题桌面端登录页](Screenshots/login-desktop.png)
+![赛博朋克主题桌面端登录页](Screenshots/login-desktop.png?raw=true)
 
-![赛博朋克主题桌面端状态页](Screenshots/overview-desktop.png)
+![赛博朋克主题桌面端状态页](Screenshots/overview-desktop.png?raw=true)
 
 ### 移动端
 
 <p align="center">
-  <img src="Screenshots/login-mobile.png" alt="赛博朋克主题移动端登录页" width="42%">
-  <img src="Screenshots/overview-mobile.png" alt="赛博朋克主题移动端状态页" width="42%">
+  <img src="Screenshots/login-mobile.png?raw=true" alt="赛博朋克主题移动端登录页" width="42%">
+  <img src="Screenshots/overview-mobile.png?raw=true" alt="赛博朋克主题移动端状态页" width="42%">
 </p>
 
 ## 构建

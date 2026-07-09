@@ -30,6 +30,7 @@ jobs:
       tag: ${{ steps.meta.outputs.tag }}
       release_name: ${{ steps.meta.outputs.release_name }}
       short_sha: ${{ steps.meta.outputs.short_sha }}
+      package_suffix: ${{ steps.meta.outputs.package_suffix }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -42,8 +43,10 @@ jobs:
           short_sha="${GITHUB_SHA::7}"
           timestamp="$(date +'%Y%m%d-%H%M%S')"
           tag="${timestamp}-${short_sha}"
+          package_suffix="${short_sha}"
 
           echo "short_sha=${short_sha}" >> "$GITHUB_OUTPUT"
+          echo "package_suffix=${package_suffix}" >> "$GITHUB_OUTPUT"
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
           echo "release_name=${PACKAGE_NAME} ${tag}" >> "$GITHUB_OUTPUT"
 
@@ -183,6 +186,7 @@ jobs:
           SERIES: ${{ matrix.series }}
           OPENWRT_RELEASE: ${{ matrix.openwrt_release }}
           PACKAGE_EXT: ${{ matrix.package_ext }}
+          PACKAGE_SUFFIX: ${{ needs.metadata.outputs.package_suffix }}
         run: |
           set -euo pipefail
 
@@ -192,18 +196,27 @@ jobs:
 
           find "$SDK_DIR/bin" -type f -name "${PACKAGE_NAME}*.${PACKAGE_EXT}" -print -exec cp -f {} "$out_dir/" \;
 
-          if [ "$PACKAGE_EXT" = "apk" ] && [ -f "$SDK_DIR/public-key.pem" ]; then
-            cp -f "$SDK_DIR/public-key.pem" "$out_dir/${OPENWRT_RELEASE}-sdk-public-key.pem"
-          fi
+          shopt -s nullglob
+          packages=("$out_dir"/"${PACKAGE_NAME}"*."${PACKAGE_EXT}")
 
-          if ! find "$out_dir" -type f -name "${PACKAGE_NAME}*.${PACKAGE_EXT}" | grep -q .; then
+          if [ "${#packages[@]}" -eq 0 ]; then
             echo "No ${PACKAGE_NAME}.${PACKAGE_EXT} package was produced" >&2
             exit 1
           fi
 
+          for package in "${packages[@]}"; do
+            filename="$(basename "$package")"
+            stem="${filename%.${PACKAGE_EXT}}"
+            mv "$package" "$out_dir/${stem}-${PACKAGE_SUFFIX}.${PACKAGE_EXT}"
+          done
+
+          # if [ "$PACKAGE_EXT" = "apk" ] && [ -f "$SDK_DIR/public-key.pem" ]; then
+          #   cp -f "$SDK_DIR/public-key.pem" "$out_dir/${OPENWRT_RELEASE}-sdk-public-key.pem"
+          # fi
+
           (
             cd "$out_dir"
-            sha256sum * > SHA256SUMS
+            sha256sum * > "SHA256SUMS-${OPENWRT_RELEASE}-${PACKAGE_EXT}"
           )
 
       - name: Upload build artifact
@@ -227,10 +240,12 @@ jobs:
           merge-multiple: false
 
       - name: Publish release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.metadata.outputs.tag }}
           name: ${{ needs.metadata.outputs.release_name }}
+          target_commitish: ${{ github.sha }}
+          preserve_order: true
           body: |
             Automated build for `${{ env.PACKAGE_NAME }}`.
 
