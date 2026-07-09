@@ -43,6 +43,7 @@ On OpenWrt versions after 24.10, install the downloaded APK package without a bu
 apk add --allow-untrusted luci-theme-cyberpunk-*.apk
 ```
 
-## Notes
+## Credits
 
-This theme keeps LuCI compatibility as the priority. The visual layer avoids external fonts or CDN assets.
+[luci-theme-material](https://github.com/LuttyYang/luci-theme-material/)
+[luci-theme-argon](https://github.com/jerrykuku/luci-theme-argon)

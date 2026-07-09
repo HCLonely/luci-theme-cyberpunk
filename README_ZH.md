@@ -43,6 +43,7 @@ OpenWrt 24.10 之后的版本由于签名密钥问题，请使用以下命令安
 apk add --allow-untrusted luci-theme-cyberpunk-*.apk
 ```
 
-## 说明
+## Credits
 
-本主题优先保证 LuCI 兼容性。视觉层不依赖外部字体或 CDN 资源。
+[luci-theme-material](https://github.com/LuttyYang/luci-theme-material/)
+[luci-theme-argon](https://github.com/jerrykuku/luci-theme-argon)
