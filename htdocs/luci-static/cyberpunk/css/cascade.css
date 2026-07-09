@@ -2663,7 +2663,7 @@ body.modal-overlay-active #modal_overlay {
   left: 0.2em;
   width: 32px;
   content: "";
-  background: url(/luci-static/resources/icons/loading.svg) no-repeat center;
+  background: url(/luci-static/cyberpunk/icon/loading.svg) no-repeat center;
   background-size: 16px;
   color: #fff;
 }
