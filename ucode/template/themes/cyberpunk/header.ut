@@ -17,7 +17,7 @@
 -#}
 
 {%
-	import { readfile, access } from 'fs';
+	import { access } from 'fs';
 	import { cursor } from 'uci';
 	import { srand } from 'math';
 	import { getuid, getspnam } from 'luci.core';
@@ -36,7 +36,6 @@
 	let mode = 'normal';
 	let bar_color = '#5e72e4';
 	let primary, dark_primary, blur_radius, blur_radius_dark, blur_opacity, blur_opacity_dark;
-	const dark_css = readfile('/www/luci-static/cyberpunk/css/dark.css');
 	if (access('/etc/config/cyberpunk')) {
 		primary = cfg.get_first('cyberpunk', 'global', 'primary');
 		dark_primary = cfg.get_first('cyberpunk', 'global', 'dark_primary');
@@ -92,14 +91,6 @@
 
 	<link rel="stylesheet" href="{{ media }}/css/cascade.css{# ?v=PKG_VERSION #}">
 	<style title="text/css">
-		{% if (mode == 'normal'): %}
-			@media (prefers-color-scheme: dark) {
-				{{ dark_css }}
-			}
-		{% endif %}
-		{% if (mode == 'dark'): %}
-			{{ dark_css }}
-		{% endif -%}
 		{% if (access('/etc/config/cyberpunk')): %}
 		:root {
 			--primary: {{ primary }};
