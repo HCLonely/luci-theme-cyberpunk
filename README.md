@@ -39,7 +39,15 @@ make package/luci-theme-cyberpunk/compile V=s
 
 ## Installation
 
-On OpenWrt versions after 24.10, install the downloaded APK package without a bundled signing key:
+- OpenWrt ≤ 24.10
+
+```sh
+opkg install luci-theme-cyberpunk-*.apk
+```
+
+- OpenWrt > 24.10
+
+> On OpenWrt versions after 24.10, install the downloaded APK package without a bundled signing key:
 
 ```sh
 apk add --allow-untrusted luci-theme-cyberpunk-*.apk
@@ -47,5 +55,5 @@ apk add --allow-untrusted luci-theme-cyberpunk-*.apk
 
 ## Credits
 
-[luci-theme-material](https://github.com/LuttyYang/luci-theme-material/)
-[luci-theme-argon](https://github.com/jerrykuku/luci-theme-argon)
+- [luci-theme-material](https://github.com/LuttyYang/luci-theme-material/)
+- [luci-theme-argon](https://github.com/jerrykuku/luci-theme-argon)

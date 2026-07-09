@@ -39,7 +39,15 @@ make package/luci-theme-cyberpunk/compile V=s
 
 ## 安装
 
-OpenWrt 24.10 之后的版本由于签名密钥问题，请使用以下命令安装下载的 APK 软件包：
+- OpenWrt ≤ 24.10
+
+```sh
+opkg install luci-theme-cyberpunk-*.apk
+```
+
+- OpenWrt > 24.10
+
+> OpenWrt 24.10 之后的版本由于签名密钥问题，请使用以下命令安装下载的 APK 软件包：
 
 ```sh
 apk add --allow-untrusted luci-theme-cyberpunk-*.apk
@@ -47,5 +55,5 @@ apk add --allow-untrusted luci-theme-cyberpunk-*.apk
 
 ## Credits
 
-[luci-theme-material](https://github.com/LuttyYang/luci-theme-material/)
-[luci-theme-argon](https://github.com/jerrykuku/luci-theme-argon)
+- [luci-theme-material](https://github.com/LuttyYang/luci-theme-material/)
+- [luci-theme-argon](https://github.com/jerrykuku/luci-theme-argon)
