@@ -2,6 +2,8 @@
 
 Cyberpunk is a dark OLED LuCI theme with a restrained neon HUD visual style for OpenWrt router administration.
 
+[Document](/README.md) | [简体中文](/README_ZH.md)
+
 ## Features
 
 - Independent LuCI theme package: `luci-theme-cyberpunk`

@@ -2,6 +2,8 @@
 
 Cyberpunk 是一款面向 OpenWrt 路由器管理后台的深色 LuCI 主题，采用克制的赛博朋克 HUD 视觉风格。
 
+[Document](/README.md) | [简体中文](/README_ZH.md)
+
 ## 特性
 
 - 独立 LuCI 主题包：`luci-theme-cyberpunk`
