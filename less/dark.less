@@ -1235,3 +1235,19 @@ input,
 .cbi-dropdown[open]>ul.dropdown>li[selected] {
   color: #fff;
 }
+
+/* Dark control icon visibility */
+select:not([multiple="multiple"]) {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 2.5rem !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath fill='none' stroke='%2300d4ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='m1 1 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right .8rem center !important;
+  background-size: .875rem .5625rem !important;
+}
+
+.spinning::before,
+.main > .loading > span::before {
+  filter: brightness(0) saturate(100%) invert(68%) sepia(97%) saturate(1887%) hue-rotate(143deg) brightness(101%) contrast(101%) drop-shadow(0 0 8px rgba(0, 212, 255, .6));
+}
