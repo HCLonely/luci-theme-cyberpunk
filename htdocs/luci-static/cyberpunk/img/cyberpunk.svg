@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Cyberpunk Theme</title>
+  <desc id="desc">Neon cyan hexagonal router console mark</desc>
+  <defs>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <linearGradient id="panel" x1="32" y1="48" x2="224" y2="208" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0a0f1e"/>
+      <stop offset="1" stop-color="#121f33"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="28" fill="#05070d"/>
+  <path d="M64 48h128l32 80-32 80H64l-32-80 32-80Z" fill="url(#panel)" stroke="#00d4ff" stroke-width="8" filter="url(#glow)"/>
+  <path d="M82 128h92M128 82v92M94 94l68 68M162 94l-68 68" stroke="#22c55e" stroke-width="10" stroke-linecap="round" opacity=".92"/>
+  <circle cx="128" cy="128" r="25" fill="#05070d" stroke="#ff2bd6" stroke-width="8" filter="url(#glow)"/>
+  <circle cx="128" cy="128" r="7" fill="#00d4ff"/>
+  <path d="M42 42h42M42 42v42M214 42h-42M214 42v42M42 214h42M42 214v-42M214 214h-42M214 214v-42" stroke="#00d4ff" stroke-width="8" stroke-linecap="round"/>
+</svg>

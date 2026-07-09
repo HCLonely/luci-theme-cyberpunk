@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ "$PKG_UPGRADE" != 1 ]; then
+	uci get luci.themes.Cyberpunk >/dev/null 2>&1 || \
+	uci batch <<-EOF
+		set luci.themes.Cyberpunk=/luci-static/cyberpunk
+		set luci.main.mediaurlbase=/luci-static/cyberpunk
+		commit luci
+	EOF
+fi
+
+exit 0

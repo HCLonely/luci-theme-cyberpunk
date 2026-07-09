@@ -1,0 +1,244 @@
+name: Build and Release OpenWrt Packages
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - "**"
+      - ".github/workflows/**"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  TZ: Asia/Shanghai
+  PACKAGE_NAME: luci-theme-cyberpunk
+
+jobs:
+  metadata:
+    name: Generate release metadata
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+      release_name: ${{ steps.meta.outputs.release_name }}
+      short_sha: ${{ steps.meta.outputs.short_sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Generate tag
+        id: meta
+        run: |
+          short_sha="${GITHUB_SHA::7}"
+          timestamp="$(date +'%Y%m%d-%H%M%S')"
+          tag="${timestamp}-${short_sha}"
+
+          echo "short_sha=${short_sha}" >> "$GITHUB_OUTPUT"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "release_name=${PACKAGE_NAME} ${tag}" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build ${{ matrix.series }} (${{ matrix.package_ext }})
+    runs-on: ubuntu-latest
+    needs: metadata
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - series: "24.10.x"
+            openwrt_release: "24.10.0"
+            package_ext: "ipk"
+            sdk_url: "https://archive.openwrt.org/releases/24.10.0/targets/x86/64/openwrt-sdk-24.10.0-x86-64_gcc-13.3.0_musl.Linux-x86_64.tar.zst"
+          - series: "25.12.x"
+            openwrt_release: "25.12.0"
+            package_ext: "apk"
+            sdk_url: "https://archive.openwrt.org/releases/25.12.0/targets/x86/64/openwrt-sdk-25.12.0-x86-64_gcc-14.3.0_musl.Linux-x86_64.tar.zst"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential clang flex bison g++ gawk gcc-multilib gettext git \
+            libncurses5-dev libncursesw5-dev libssl-dev python3 rsync unzip wget \
+            file zlib1g-dev zstd
+
+      - name: Cache OpenWrt SDK
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/openwrt-sdk/${{ matrix.openwrt_release }}
+            ~/.cache/openwrt-sdk/downloads
+          key: openwrt-sdk-${{ runner.os }}-${{ matrix.openwrt_release }}-${{ hashFiles('.github/workflows/manual_release.yml') }}
+          restore-keys: |
+            openwrt-sdk-${{ runner.os }}-${{ matrix.openwrt_release }}-
+
+      - name: Download and extract SDK
+        env:
+          SDK_URL: ${{ matrix.sdk_url }}
+          OPENWRT_RELEASE: ${{ matrix.openwrt_release }}
+        run: |
+          set -euo pipefail
+
+          sdk_root="$HOME/.cache/openwrt-sdk/${OPENWRT_RELEASE}"
+          download_dir="$HOME/.cache/openwrt-sdk/downloads"
+          archive="$download_dir/$(basename "$SDK_URL")"
+
+          mkdir -p "$download_dir"
+
+          if [ ! -s "$archive" ]; then
+            wget -O "$archive.tmp" "$SDK_URL"
+            mv "$archive.tmp" "$archive"
+          fi
+
+          if [ ! -f "$sdk_root/Makefile" ]; then
+            rm -rf "$sdk_root" "$sdk_root.tmp"
+            mkdir -p "$sdk_root.tmp"
+            tar --zstd -xf "$archive" -C "$sdk_root.tmp" --strip-components=1
+            mv "$sdk_root.tmp" "$sdk_root"
+          fi
+
+          echo "SDK_DIR=$sdk_root" >> "$GITHUB_ENV"
+
+      - name: Prepare LuCI feed and package source
+        run: |
+          set -euo pipefail
+
+          if [ -f "$GITHUB_WORKSPACE/Makefile" ]; then
+            pkg_src="$GITHUB_WORKSPACE"
+          elif [ -f "$GITHUB_WORKSPACE/${PACKAGE_NAME}/Makefile" ]; then
+            pkg_src="$GITHUB_WORKSPACE/${PACKAGE_NAME}"
+          else
+            echo "Cannot find ${PACKAGE_NAME} package source" >&2
+            exit 1
+          fi
+
+          target_pkg="$SDK_DIR/package/${PACKAGE_NAME}"
+          rm -rf "$target_pkg"
+          mkdir -p "$target_pkg"
+
+          rsync -a \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='Screenshots/' \
+            --exclude='.DS_Store' \
+            "$pkg_src/" "$target_pkg/"
+
+          cd "$SDK_DIR"
+
+          cat > feeds.conf <<'EOF'
+          src-git base https://github.com/openwrt/openwrt.git;main
+          src-git-full packages https://github.com/openwrt/packages.git;master
+          src-git-full luci https://github.com/openwrt/luci.git;master
+          src-git-full routing https://git.openwrt.org/feed/routing.git;master
+          EOF
+
+          if [ ! -f "feeds/luci/luci.mk" ]; then
+            rm -rf feeds/luci feeds/luci.tmp feeds/luci.index feeds/luci.targetindex
+            GIT_HTTP_VERSION=HTTP/1.1 ./scripts/feeds update luci
+            ./scripts/feeds install luci-base
+          fi
+
+          test -f "$SDK_DIR/feeds/luci/luci.mk"
+
+      - name: Configure SDK
+        run: |
+          set -euo pipefail
+          cd "$SDK_DIR"
+
+          cat > .config <<EOF
+          CONFIG_ALL_NONSHARED=n
+          CONFIG_ALL_KMODS=n
+          CONFIG_ALL=n
+          CONFIG_AUTOREMOVE=n
+          CONFIG_LUCI_LANG_zh_Hans=y
+          CONFIG_PACKAGE_${PACKAGE_NAME}=m
+          EOF
+
+          make defconfig
+
+      - name: Compile package
+        run: |
+          set -euo pipefail
+          cd "$SDK_DIR"
+          make "package/${PACKAGE_NAME}/clean" V=s
+          make "package/${PACKAGE_NAME}/compile" V=s -j"$(nproc)"
+
+      - name: Collect packages
+        env:
+          SERIES: ${{ matrix.series }}
+          OPENWRT_RELEASE: ${{ matrix.openwrt_release }}
+          PACKAGE_EXT: ${{ matrix.package_ext }}
+        run: |
+          set -euo pipefail
+
+          out_dir="$GITHUB_WORKSPACE/dist/${SERIES}-${PACKAGE_EXT}"
+          rm -rf "$out_dir"
+          mkdir -p "$out_dir"
+
+          find "$SDK_DIR/bin" -type f -name "${PACKAGE_NAME}*.${PACKAGE_EXT}" -print -exec cp -f {} "$out_dir/" \;
+
+          if [ "$PACKAGE_EXT" = "apk" ] && [ -f "$SDK_DIR/public-key.pem" ]; then
+            cp -f "$SDK_DIR/public-key.pem" "$out_dir/${OPENWRT_RELEASE}-sdk-public-key.pem"
+          fi
+
+          if ! find "$out_dir" -type f -name "${PACKAGE_NAME}*.${PACKAGE_EXT}" | grep -q .; then
+            echo "No ${PACKAGE_NAME}.${PACKAGE_EXT} package was produced" >&2
+            exit 1
+          fi
+
+          (
+            cd "$out_dir"
+            sha256sum * > SHA256SUMS
+          )
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ env.PACKAGE_NAME }}-${{ matrix.series }}-${{ matrix.package_ext }}
+          path: dist/${{ matrix.series }}-${{ matrix.package_ext }}/*
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+    needs:
+      - metadata
+      - build
+    steps:
+      - name: Download package artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: false
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.metadata.outputs.tag }}
+          name: ${{ needs.metadata.outputs.release_name }}
+          body: |
+            Automated build for `${{ env.PACKAGE_NAME }}`.
+
+            Commit: `${{ github.sha }}`
+            Short commit: `${{ needs.metadata.outputs.short_sha }}`
+
+            Included targets:
+            - OpenWrt 24.10.x: `.ipk`
+            - OpenWrt 25.12.x: `.apk`
+          files: release-assets/**/*
+          fail_on_unmatched_files: true

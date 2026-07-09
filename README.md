@@ -1,0 +1,40 @@
+# Cyberpunk LuCI Theme
+
+Cyberpunk is a dark OLED LuCI theme with a restrained neon HUD visual style for OpenWrt router administration.
+
+## Features
+
+- Independent LuCI theme package: `luci-theme-cyberpunk`
+- Dark-first cyberpunk palette with cyan, magenta, and green status accents
+- Cyberpunk login logo and local HUD-style background
+- Dedicated theme assets under `/luci-static/cyberpunk`
+- Dedicated menu module: `menu-cyberpunk`
+- UCI config namespace: `cyberpunk`
+- Wallpaper RPC helper: `luci.cyberpunk_wallpaper`
+
+## Screenshots
+
+### Desktop
+
+![Cyberpunk login page on desktop](Screenshots/login-desktop.png)
+
+![Cyberpunk overview page on desktop](Screenshots/overview-desktop.png)
+
+### Mobile
+
+<p align="center">
+  <img src="Screenshots/login-mobile.png" alt="Cyberpunk login page on mobile" width="42%">
+  <img src="Screenshots/overview-mobile.png" alt="Cyberpunk overview page on mobile" width="42%">
+</p>
+
+## Build
+
+Place this package in an OpenWrt buildroot package feed and build it as a normal LuCI package.
+
+```sh
+make package/luci-theme-cyberpunk/compile V=s
+```
+
+## Notes
+
+This theme keeps LuCI compatibility as the priority. The visual layer avoids external fonts or CDN assets.

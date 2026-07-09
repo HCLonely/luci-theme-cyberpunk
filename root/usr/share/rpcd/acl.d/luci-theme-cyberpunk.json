@@ -1,0 +1,8 @@
+{
+    "luci-theme-cyberpunk": {
+        "description": "Grant UCI access for luci-theme-cyberpunk",
+        "read": {
+            "uci": [ "cyberpunk" ]
+        }
+    }
+}
