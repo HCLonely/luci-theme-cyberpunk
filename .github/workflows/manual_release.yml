@@ -210,10 +210,6 @@ jobs:
             mv "$package" "$out_dir/${stem}-${PACKAGE_SUFFIX}.${PACKAGE_EXT}"
           done
 
-          # if [ "$PACKAGE_EXT" = "apk" ] && [ -f "$SDK_DIR/public-key.pem" ]; then
-          #   cp -f "$SDK_DIR/public-key.pem" "$out_dir/${OPENWRT_RELEASE}-sdk-public-key.pem"
-          # fi
-
           (
             cd "$out_dir"
             sha256sum * > "SHA256SUMS-${OPENWRT_RELEASE}-${PACKAGE_EXT}"

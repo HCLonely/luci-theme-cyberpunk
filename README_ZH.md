@@ -35,6 +35,14 @@ Cyberpunk 是一款面向 OpenWrt 路由器管理后台的深色 LuCI 主题，�
 make package/luci-theme-cyberpunk/compile V=s
 ```
 
+## 安装
+
+OpenWrt 24.10 之后的版本由于签名密钥问题，请使用以下命令安装下载的 APK 软件包：
+
+```sh
+apk add --allow-untrusted luci-theme-cyberpunk-*.apk
+```
+
 ## 说明
 
 本主题优先保证 LuCI 兼容性。视觉层不依赖外部字体或 CDN 资源。

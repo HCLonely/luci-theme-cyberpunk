@@ -35,6 +35,14 @@ Place this package in an OpenWrt buildroot package feed and build it as a normal
 make package/luci-theme-cyberpunk/compile V=s
 ```
 
+## Installation
+
+On OpenWrt versions after 24.10, install the downloaded APK package without a bundled signing key:
+
+```sh
+apk add --allow-untrusted luci-theme-cyberpunk-*.apk
+```
+
 ## Notes
 
 This theme keeps LuCI compatibility as the priority. The visual layer avoids external fonts or CDN assets.
