@@ -62,10 +62,12 @@ jobs:
         include:
           - series: "24.10.x"
             openwrt_release: "24.10.0"
+            luci_branch: "openwrt-24.10"
             package_ext: "ipk"
             sdk_url: "https://archive.openwrt.org/releases/24.10.0/targets/x86/64/openwrt-sdk-24.10.0-x86-64_gcc-13.3.0_musl.Linux-x86_64.tar.zst"
           - series: "25.12.x"
             openwrt_release: "25.12.0"
+            luci_branch: "openwrt-25.12"
             package_ext: "apk"
             sdk_url: "https://archive.openwrt.org/releases/25.12.0/targets/x86/64/openwrt-sdk-25.12.0-x86-64_gcc-14.3.0_musl.Linux-x86_64.tar.zst"
     steps:
@@ -88,9 +90,9 @@ jobs:
           path: |
             ~/.cache/openwrt-sdk/${{ matrix.openwrt_release }}
             ~/.cache/openwrt-sdk/downloads
-          key: openwrt-sdk-${{ runner.os }}-${{ matrix.openwrt_release }}-${{ hashFiles('.github/workflows/manual_release.yml') }}
+          key: openwrt-sdk-${{ runner.os }}-${{ matrix.openwrt_release }}-${{ matrix.luci_branch }}-${{ hashFiles('.github/workflows/manual_release.yml') }}
           restore-keys: |
-            openwrt-sdk-${{ runner.os }}-${{ matrix.openwrt_release }}-
+            openwrt-sdk-${{ runner.os }}-${{ matrix.openwrt_release }}-${{ matrix.luci_branch }}-
 
       - name: Download and extract SDK
         env:
@@ -120,6 +122,8 @@ jobs:
           echo "SDK_DIR=$sdk_root" >> "$GITHUB_ENV"
 
       - name: Prepare LuCI feed and package source
+        env:
+          LUCI_BRANCH: ${{ matrix.luci_branch }}
         run: |
           set -euo pipefail
 
@@ -145,10 +149,11 @@ jobs:
 
           cd "$SDK_DIR"
 
-          cat > feeds.conf <<'EOF'
+          # Match LuCI build rules to the SDK instead of tracking master.
+          cat > feeds.conf <<EOF
           src-git base https://github.com/openwrt/openwrt.git;main
           src-git-full packages https://github.com/openwrt/packages.git;master
-          src-git-full luci https://github.com/openwrt/luci.git;master
+          src-git-full luci https://github.com/openwrt/luci.git;${LUCI_BRANCH}
           src-git-full routing https://git.openwrt.org/feed/routing.git;master
           EOF
 
