@@ -56,6 +56,16 @@ button,
   color: #fff !important;
 }
 
+/* Gradients replace the legacy arrow image, so show the native button value.
+ * OpenClash also sets font-size: 0; its rule must not hide these labels.
+ * The old scaleY(-1) flipped the image and would invert the up label as well.
+ */
+.cbi-button-up,
+.cbi-button-down {
+  font-size: 0.875rem !important;
+  transform: none !important;
+}
+
 /* Neutral and disabled controls must not retain a bright button foreground. */
 .cbi-button-neutral,
 .cbi-button-neutral[onclick="handleConfig(event)"],
