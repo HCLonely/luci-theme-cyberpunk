@@ -9,7 +9,8 @@ include $(TOPDIR)/rules.mk
 LUCI_TITLE:=Cyberpunk Theme
 LUCI_DEPENDS:=+wget +jsonfilter
 PKG_VERSION:=1.0.0
-PKG_RELEASE:=20250722
+# Use the build date (UTC+8), matching the release workflow timezone.
+PKG_RELEASE:=$(shell TZ=Asia/Shanghai date +%Y%m%d)
 
 CONFIG_LUCI_CSSTIDY:=
 
