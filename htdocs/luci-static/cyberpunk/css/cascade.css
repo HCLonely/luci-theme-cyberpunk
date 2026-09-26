@@ -5266,3 +5266,88 @@ header .fill .status span[data-indicator="poll-status"][data-style="inactive"]:h
     0 0 4px rgba(5, 7, 13, 0.95),
     0 0 8px rgba(0, 212, 255, 0.24);
 }
+
+/* Keep foreground/background pairs together, including legacy LuCI selectors.
+ * Opaque gradients keep contrast independent of the wallpaper underneath.
+ */
+.btn,
+button,
+.cbi-button,
+.cbi-input-apply,
+.cbi-button-edit.important,
+.cbi-button-apply.important,
+.cbi-button-reload.important,
+.cbi-button-action.important,
+.cbi-page-actions .cbi-button-apply,
+.cbi-section-actions .cbi-button-edit,
+.cbi-button[value="Submit"],
+.cbi-button[value="Upload"],
+.cbi-button[value$="Apply"],
+.cbi-button[onclick="addKey(event)"] {
+  background: linear-gradient(135deg, #00d4ff, #008fbc) !important;
+  color: #021018 !important;
+  text-shadow: none !important;
+}
+
+.btn.primary,
+.cbi-page-actions .cbi-button-save,
+.cbi-page-actions .cbi-button-apply + .cbi-button-save,
+.cbi-button-save,
+.cbi-button-positive,
+.cbi-button-add,
+.cbi-button-success,
+.cbi-button-download,
+.cbi-button-link,
+.cbi-button-find,
+.cbi-button-reload,
+.cbi-input-save,
+.cbi-input-find,
+.cbi-input-reload,
+.cbi-button[value="Enable"],
+.cbi-button[value="Scan"],
+.cbi-button[value^="Back"],
+.cbi-button-neutral[onclick="handleConfig(event)"] {
+  background: linear-gradient(135deg, #22c55e, #009b64) !important;
+  color: #03150b !important;
+}
+
+.btn.danger,
+.cbi-section-remove > .cbi-button,
+.cbi-button-remove,
+.cbi-button-reset,
+.cbi-button-negative,
+.cbi-input-remove,
+.cbi-button[value="Stop"],
+.cbi-button[value="Kill"],
+.cbi-button[onclick="reboot(this)"],
+.cbi-button-neutral[value="Restart"] {
+  background: linear-gradient(135deg, #bd1747, #9c214a) !important;
+  color: #fff !important;
+}
+
+/* Neutral and disabled controls must not retain a bright button foreground. */
+.cbi-button-neutral,
+.cbi-button-neutral[onclick="handleConfig(event)"],
+.cbi-button-neutral[value="Restart"],
+.cbi-button-neutral[value="Disable"],
+.cbi-value input[type="password"] + .cbi-button-neutral,
+.btn[value="Hide"],
+.btn[value="隐藏"],
+.cbi-button[value="Hide"],
+.cbi-button[value="隐藏"],
+.cbi-section .right .btn,
+.cbi-section .right .cbi-button {
+  background: #121f33 !important;
+  color: #e6f7ff !important;
+}
+
+/* Match contextual button specificity without affecting disabled text inputs. */
+body :is(.btn, button, .cbi-button, .cbi-input-apply, .cbi-input-save,
+         .cbi-input-find, .cbi-input-reload, .cbi-input-remove):is([disabled], .cbi-button-disabled),
+.cbi-page-actions .cbi-button-apply + .cbi-button-save[disabled] {
+  background: #121f33 !important;
+  color: #9fb6c8 !important;
+  opacity: 1 !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
